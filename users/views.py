@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django.utils import timezone
 from .serializer import (
-    LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationsSerializer
+    LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationsSerializer,
+    ChangePasswordSerializer,
 )
 from .models import User
 from .utils import get_tokens_for_user
@@ -81,3 +82,16 @@ class UpdateInformations(RetrieveUpdateDestroyAPIView):
     permission_classes = [Is_Manager]
     serializer_class = UpdateInformationsSerializer
     queryset = User.objects.all()
+
+
+class ChangePassword(APIView):
+    permission_classes = [Is_Manager]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={'request': request}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            message = {'change-password': 'change password complete'}
+            return Response(message, status=status.HTTP_200_OK)
