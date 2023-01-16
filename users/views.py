@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from django.utils import timezone
 from .serializer import (
-    LoginSerializer, UserSerializer, RegisterSerializer
+    LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationsSerializer
 )
 from .models import User
 from .utils import get_tokens_for_user
@@ -68,4 +68,10 @@ class Login(APIView):
 class Register(CreateAPIView):
     permission_classes = [Is_Manager]
     serializer_class = RegisterSerializer
+    queryset = User.objects.all()
+
+
+class UpdateInformations(RetrieveUpdateDestroyAPIView):
+    permission_classes = [Is_Manager]
+    serializer_class = UpdateInformationsSerializer
     queryset = User.objects.all()
