@@ -13,6 +13,8 @@ from .permission import Is_Manager
 
 class Login(APIView):
     def post(self, request):
+        login_status = None
+        role = None
         serializer = LoginSerializer(
             data=request.data, context={'request': request}
         )
@@ -21,65 +23,49 @@ class Login(APIView):
             password = serializer.validated_data['password']
             user = User.objects.filter(username=username).first()
             if user:
-                user_data = UserSerializer(user)
+                user_data = UserSerializer(user).data
                 if user.is_manager:
                     if user.check_password(password):
-                        user.last_login = timezone.now()
-                        user.save()
-                        message = {
-                            'role': 'manager',
-                            'user': user_data.data,
-                            'tokens': get_tokens_for_user(user)
-                        }
-                        return Response(message, status=status.HTTP_200_OK)
+                        role = 'manager'
+                        login_status = True
                     else:
-                        message = {'message': 'Password is incorrect'}
-                        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                        login_status = False
                 elif user.is_admin:
                     if user.check_password(password):
-                        user.last_login = timezone.now()
-                        user.save()
-                        message = {
-                            'role': 'admin',
-                            'user': user_data.data,
-                            'tokens': get_tokens_for_user(user)
-                        }
-                        return Response(message, status=status.HTTP_200_OK)
+                        role = 'admin'
+                        login_status = True
                     else:
-                        message = {'message': 'Password is incorrect'}
-                        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                        login_status = False
                 elif user.is_adviser:
                     if user.check_password(password):
-                        user.last_login = timezone.now()
-                        user.save()
-                        message = {
-                            'role': 'adviser',
-                            'user': user_data.data,
-                            'tokens': get_tokens_for_user(user)
-                        }
-                        return Response(message, status=status.HTTP_200_OK)
+                        role = 'adviser'
+                        login_status = True
                     else:
-                        message = {'message': 'Password is incorrect'}
-                        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                        login_status = False
                 elif user.is_user:
                     if user.check_password(password):
-                        user.last_login = timezone.now()
-                        user.save()
-                        message = {
-                            'role': 'user',
-                            'user': user_data.data,
-                            'tokens': get_tokens_for_user(user)
-                        }
-                        return Response(message, status=status.HTTP_200_OK)
+                        role = 'user'
+                        login_status = True
                     else:
-                        message = {'message': 'Password is incorrect'}
-                        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                        login_status = False
+                if login_status:
+                    user.last_login = timezone.now()
+                    user.save()
+                    message = {
+                        'role': role,
+                        'user': user_data,
+                        'tokens': get_tokens_for_user(user)
+                    }
+                    return Response(message, status=status.HTTP_200_OK)
+                else:
+                    message = {'password': 'Password is incorrect'}
+                    return Response(message, status=status.HTTP_400_BAD_REQUEST)
             else:
                 message = {'message': 'User not found'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Register(CreateAPIView):
-    permission_classes = [Is_Manager,]
+    permission_classes = [Is_Manager]
     serializer_class = RegisterSerializer
     queryset = User.objects.all()
