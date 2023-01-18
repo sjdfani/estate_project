@@ -9,7 +9,7 @@ class Role(models.TextChoices):
     MANAGER = ('manager', 'Manager')
     ASSISTANT = ('assistant', 'Assistant')
     ADMIN = ('admin', 'Admin')
-    ADVISER = ('adviser', 'Adviser')
+    ADVISOR = ('adviser', 'Advisor')
     USER = ('user', 'User')
     NONE = ('none', 'None')
 

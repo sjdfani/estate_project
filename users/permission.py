@@ -23,10 +23,10 @@ class Is_Admin(BasePermission):
         )
 
 
-class Is_Adviser(BasePermission):
+class Is_Advisor(BasePermission):
     def has_permission(self, request, view):
         return (
-            request.user and request.user.is_authenticated and request.user.role == Role.ADVISER
+            request.user and request.user.is_authenticated and request.user.role == Role.ADVISOR
         )
 
 
@@ -45,19 +45,19 @@ class Is_Manager_OR_Assistant(BasePermission):
         )
 
 
-class Is_Any_Access_Except_Adviser(BasePermission):
+class Is_Any_Access_Except_Advisor(BasePermission):
     def has_permission(self, request, view):
         return (
             request.user and request.user.is_authenticated and not (
-                request.user.role == Role.ADVISER)
+                request.user.role == Role.ADVISOR)
         )
 
 
-class Is_Manager_OR_Assistant_OR_Adviser(BasePermission):
+class Is_Manager_OR_Assistant_OR_Advisor(BasePermission):
     def has_permission(self, request, view):
         return (
             request.user and request.user.is_authenticated and (
-                request.user.role in [Role.MANAGER, Role.ASSISTANT, Role.ADVISER])
+                request.user.role in [Role.MANAGER, Role.ASSISTANT, Role.ADVISOR])
         )
 
 
