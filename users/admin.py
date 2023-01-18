@@ -18,8 +18,8 @@ class CustomUserAdmin(UserAdmin):
         (_('Date information'), {
             'fields': ('date_joined', 'last_login')
         }),
-        (_('Other information'), {
-            'fields': ('role',)
+        (_('Permission options'), {
+            'fields': ('role', 'access_codes')
         })
     )
     add_fieldsets = (
