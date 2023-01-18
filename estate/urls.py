@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
-    BS_Home_List, Create_BS_Home, Change_Status_BS_Home, UnChecked_BS_Home_List
+    BS_Home_List, Create_BS_Home, Change_Status_BS_Home, UnChecked_BS_Home_List,
+    Archived_BS_Home
 )
 
 app_name = 'estate'
@@ -10,4 +11,5 @@ urlpatterns = [
     path('create-home/', Create_BS_Home.as_view(), name='create-home'),
     path('change-status/', Change_Status_BS_Home.as_view(), name='change-status'),
     path('unchecked-home/', UnChecked_BS_Home_List.as_view(), name='unchecked-list'),
+    path('archived-home/', Archived_BS_Home.as_view(), name='archived-home')
 ]

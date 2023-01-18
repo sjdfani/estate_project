@@ -1,11 +1,11 @@
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from users.models import Role
 from users.permission import (
     Is_Any_Access_Except_Adviser, Is_Manager_OR_Assistant_OR_Adviser, Is_Manager_OR_Assistant_OR_Admin,
-    Is_Admin,
+    Is_Admin, Is_Manager_OR_Assistant
 )
 from .serializer import (
     HomeListSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer
@@ -59,3 +59,13 @@ class UnChecked_BS_Home_List(ListAPIView):
             return Buy_Sell_Home.objects.filter(area_code__in=access_code, status=False, is_archived=False)
         else:
             return []
+
+
+class Archived_BS_Home(ListAPIView):
+    permission_classes = [Is_Manager_OR_Assistant]
+    serializer_class = HomeListSerializer
+    queryset = Buy_Sell_Home.objects.filter(is_archived=True)
+
+
+class Update_BS_Home(RetrieveUpdateDestroyAPIView):
+    pass
