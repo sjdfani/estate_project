@@ -38,6 +38,14 @@ class Is_Adviser(BasePermission):
         )
 
 
+class Is_Any_Access_Except_Adviser(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user and request.user.is_authenticated and not (
+                request.user.role == Role.ADVISER)
+        )
+
+
 class Is_User(BasePermission):
     def has_permission(self, request, view):
         return (
