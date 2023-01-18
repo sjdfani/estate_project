@@ -54,4 +54,6 @@ class Change_Status_BS_Home_Serializer(serializers.Serializer):
 class Update_BS_Home_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Buy_Sell_Home
-        exclude = ('checked_by', 'checked_date', 'creator')
+        exclude = (
+            'checked_by', 'checked_date', 'creator', 'is_archived', 'status'
+        )
