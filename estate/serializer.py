@@ -3,7 +3,7 @@ from django.utils import timezone
 from .models import Buy_Sell_Home
 
 
-class HomeListSerializer(serializers.ModelSerializer):
+class HomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Buy_Sell_Home
         fields = '__all__'
@@ -49,3 +49,9 @@ class Change_Status_BS_Home_Serializer(serializers.Serializer):
 
     def save(self, **kwargs):
         self.process(self.validated_data)
+
+
+class Update_BS_Home_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Buy_Sell_Home
+        exclude = ('checked_by', 'checked_date', 'creator')

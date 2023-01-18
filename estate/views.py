@@ -8,14 +8,15 @@ from users.permission import (
     Is_Admin, Is_Manager_OR_Assistant
 )
 from .serializer import (
-    HomeListSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer
+    HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
+    Update_BS_Home_Serializer,
 )
 from .models import Buy_Sell_Home
 
 
 class BS_Home_List(ListAPIView):
     permission_classes = [Is_Any_Access_Except_Adviser]
-    serializer_class = HomeListSerializer
+    serializer_class = HomeSerializer
 
     def get_queryset(self):
         if self.request.user.role in [Role.MANAGER, Role.ASSISTANT]:
@@ -50,7 +51,7 @@ class Change_Status_BS_Home(APIView):
 
 class UnChecked_BS_Home_List(ListAPIView):
     permission_classes = [Is_Admin]
-    serializer_class = HomeListSerializer
+    serializer_class = HomeSerializer
 
     def get_queryset(self):
         access_code = self.request.user.access_codes
@@ -63,9 +64,15 @@ class UnChecked_BS_Home_List(ListAPIView):
 
 class Archived_BS_Home(ListAPIView):
     permission_classes = [Is_Manager_OR_Assistant]
-    serializer_class = HomeListSerializer
+    serializer_class = HomeSerializer
     queryset = Buy_Sell_Home.objects.filter(is_archived=True)
 
 
 class Update_BS_Home(RetrieveUpdateDestroyAPIView):
-    pass
+    permission_classes = [Is_Manager_OR_Assistant]
+    queryset = Buy_Sell_Home.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return HomeSerializer
+        return Update_BS_Home_Serializer
