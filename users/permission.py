@@ -1,21 +1,37 @@
 from rest_framework.permissions import BasePermission
+from .models import Role
 
 
 class Is_Manager(BasePermission):
     def has_permission(self, request, view):
-        return (request.user and request.user.is_authenticated and request.user.is_manager)
+        return (
+            request.user and request.user.is_authenticated and request.user.role == Role.MANAGER
+        )
+
+
+class Is_Assistant(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user and request.user.is_authenticated and request.user.role == Role.ASSISTANT
+        )
 
 
 class Is_Admin(BasePermission):
     def has_permission(self, request, view):
-        return (request.user and request.user.is_authenticated and request.user.is_admin)
+        return (
+            request.user and request.user.is_authenticated and request.user.role == Role.ADMIN
+        )
 
 
 class Is_Adviser(BasePermission):
     def has_permission(self, request, view):
-        return (request.user and request.user.is_authenticated and request.user.is_adviser)
+        return (
+            request.user and request.user.is_authenticated and request.user.role == Role.ADVISER
+        )
 
 
 class Is_User(BasePermission):
     def has_permission(self, request, view):
-        return (request.user and request.user.is_authenticated and request.user.is_user)
+        return (
+            request.user and request.user.is_authenticated and request.user.role == Role.USER
+        )
