@@ -51,10 +51,10 @@ class Buy_Sell_Home(models.Model):
         default=False, verbose_name=_('Is Archived'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    accepted_by = models.ForeignKey(
+    checked_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, verbose_name=_('Accepted By'), null=True, blank=True, related_name='buy_sell_home_accepted_by'
     )
-    accepted_date = models.DateTimeField(
+    checked_date = models.DateTimeField(
         verbose_name=_('Accepted Date'), null=True, blank=True
     )
 
