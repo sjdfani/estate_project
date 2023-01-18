@@ -9,7 +9,7 @@ from users.permission import (
 )
 from .serializer import (
     HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
-    Update_BS_Home_Serializer,
+    Update_BS_Home_Serializer, Set_Description_BS_Home_Serializer
 )
 from .models import Buy_Sell_Home
 
@@ -76,3 +76,14 @@ class Update_BS_Home(RetrieveUpdateDestroyAPIView):
         if self.request.method == 'GET':
             return HomeSerializer
         return Update_BS_Home_Serializer
+
+
+class Set_Description_BS_Home(APIView):
+    def post(self, request):
+        serializer = Set_Description_BS_Home_Serializer(
+            data=request.data, context={'request': request}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            message = {'set-description': 'Set description complete'}
+            return Response(message, status=status.HTTP_200_OK)

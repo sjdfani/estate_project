@@ -57,3 +57,23 @@ class Update_BS_Home_Serializer(serializers.ModelSerializer):
         exclude = (
             'checked_by', 'checked_date', 'creator', 'is_archived', 'status'
         )
+
+
+class Set_Description_BS_Home_Serializer(serializers.Serializer):
+    home = serializers.IntegerField()
+    description = serializers.CharField(max_length=200)
+
+    def validate_home(self, value):
+        if not Buy_Sell_Home.objects.filter(pk=value).exists():
+            raise serializers.ValidationError('This home is not exists')
+        return value
+
+    def process(self, validated_data):
+        home_id = validated_data['home']
+        description = validated_data['description']
+        home = Buy_Sell_Home.objects.get(pk=home_id)
+        home.description = description
+        home.save()
+
+    def save(self, **kwargs):
+        self.process(self.validated_data)
