@@ -5,6 +5,15 @@ from django.utils.translation import ugettext_lazy as _
 from .manager import CustomUserManager
 
 
+class Role(models.TextChoices):
+    MANAGER = ('manager', 'Manager')
+    ASSISTANT = ('assistant', 'Assistant')
+    ADMIN = ('admin', 'Admin')
+    ADVISER = ('adviser', 'Adviser')
+    USER = ('user', 'User')
+    NONE = ('none', 'None')
+
+
 class User(AbstractBaseUser):
     username = models.CharField(
         max_length=20, unique=True, verbose_name='Username'
@@ -14,11 +23,13 @@ class User(AbstractBaseUser):
         max_length=11, verbose_name='Phone Number', null=True, blank=True
     )
     address = models.TextField(verbose_name='Address', null=True, blank=True)
-    is_manager = models.BooleanField(default=False, verbose_name='Is Manager')
-    is_admin = models.BooleanField(default=False, verbose_name='Is Admin')
-    is_adviser = models.BooleanField(default=False, verbose_name='Is Adviser')
-    is_user = models.BooleanField(default=False, verbose_name='Is User')
+    role = models.CharField(
+        max_length=9, choices=Role.choices, default=Role.NONE, verbose_name='Role'
+    )
     date_joined = models.DateTimeField(default=timezone.now)
+    access_codes = models.CharField(
+        max_length=200, verbose_name='Access Codes', null=True, blank=True
+    )
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

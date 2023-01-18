@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+from .models import Role
 
 
 class CustomUserManager(BaseUserManager):
@@ -14,8 +15,8 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, password, **extra_fields):
-        extra_fields.setdefault('is_manager', True)
+        extra_fields.setdefault('role', Role.MANAGER)
 
-        if extra_fields.get('is_manager') is not True:
-            raise ValueError(_('Manager must have is_manager=True.'))
+        if extra_fields.get('role') == 'manager':
+            raise ValueError(_('Manager must have role=manager.'))
         return self.create_user(username, password, **extra_fields)
