@@ -3,19 +3,18 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django.utils import timezone
+from django.db.models import Q
 from .serializer import (
-    LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationsSerializer,
+    LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
     ChangePasswordSerializer,
 )
-from .models import User
+from .models import User, Role
 from .utils import get_tokens_for_user
-from .permission import Is_Manager
+from .permission import Is_Manager, Is_Assistant
 
 
 class Login(APIView):
     def post(self, request):
-        login_status = None
-        role = None
         serializer = LoginSerializer(
             data=request.data, context={'request': request}
         )
@@ -25,35 +24,11 @@ class Login(APIView):
             user = User.objects.filter(username=username).first()
             if user:
                 user_data = UserSerializer(user).data
-                if user.is_manager:
-                    if user.check_password(password):
-                        role = 'manager'
-                        login_status = True
-                    else:
-                        login_status = False
-                elif user.is_admin:
-                    if user.check_password(password):
-                        role = 'admin'
-                        login_status = True
-                    else:
-                        login_status = False
-                elif user.is_adviser:
-                    if user.check_password(password):
-                        role = 'adviser'
-                        login_status = True
-                    else:
-                        login_status = False
-                elif user.is_user:
-                    if user.check_password(password):
-                        role = 'user'
-                        login_status = True
-                    else:
-                        login_status = False
-                if login_status:
+                if user.check_password(password):
                     user.last_login = timezone.now()
                     user.save()
                     message = {
-                        'role': role,
+                        'role': user.role,
                         'user': user_data,
                         'tokens': get_tokens_for_user(user)
                     }
@@ -67,25 +42,35 @@ class Login(APIView):
 
 
 class Register(CreateAPIView):
-    permission_classes = [Is_Manager]
+    permission_classes = [Is_Manager, Is_Assistant]
     serializer_class = RegisterSerializer
     queryset = User.objects.all()
 
 
 class UserList(ListAPIView):
-    permission_classes = [Is_Manager]
+    permission_classes = [Is_Manager, Is_Assistant]
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+
+    def get_queryset(self):
+        if self.request.user.role == Role.ASSISTANT:
+            lookup = ~Q(role=Role.ASSISTANT, role=Role.MANAGER)
+            return User.objects.filter(lookup)
+        return User.objects.all()
 
 
-class UpdateInformations(RetrieveUpdateDestroyAPIView):
-    permission_classes = [Is_Manager]
-    serializer_class = UpdateInformationsSerializer
-    queryset = User.objects.all()
+class UpdateInformation(RetrieveUpdateDestroyAPIView):
+    permission_classes = [Is_Manager, Is_Assistant]
+    serializer_class = UpdateInformationSerializer
+
+    def get_queryset(self):
+        if self.request.user.role == Role.ASSISTANT:
+            lookup = ~Q(role=Role.ASSISTANT, role=Role.MANAGER)
+            return User.objects.filter(lookup)
+        return User.objects.all()
 
 
 class ChangePassword(APIView):
-    permission_classes = [Is_Manager]
+    permission_classes = [Is_Manager, Is_Assistant]
 
     def post(self, request):
         serializer = ChangePasswordSerializer(

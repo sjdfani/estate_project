@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Role
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,18 +25,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         username = attrs['username']
-        permissions = [
-            attrs['is_manager'], attrs['is_admin'],
-            attrs['is_adviser'], attrs['is_user'],
-        ]
+        role = attrs['role']
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError(
-                {'username': 'This username is exists'}
+                {'Username': 'This username is exists'}
             )
-        if permissions.count(True) >= 2:
-            raise serializers.ValidationError(
-                {'role': 'You can choose one role'}
-            )
+        if self.context['request'].user.role == Role.ASSISTANT:
+            if role == Role.MANAGER or role == Role.ASSISTANT:
+                raise serializers.ValidationError(
+                    {'Permission': "You don't have permission"}
+                )
         return attrs
 
     def create(self, validated_data):
@@ -47,20 +45,33 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class UpdateInformationsSerializer(serializers.ModelSerializer):
+class UpdateInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('password',)
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    user_password = serializers.CharField(max_length=50)
     username = serializers.CharField(max_length=20)
     new_password = serializers.CharField(max_length=50)
 
-    def validate_username(self, value):
-        if not User.objects.filter(username=value).exists():
-            return serializers.ValidationError('This username is not exists')
-        return value
+    def validate(self, attrs):
+        user_password = attrs['user_password']
+        username = attrs['username']
+        user = self.context['request'].user
+        if not user.check_password(user_password):
+            raise serializers.ValidationError(
+                {'Password': 'Your password is incorrect'}
+            )
+        user = User.objects.filter(username=username)
+        if not user.exists():
+            raise serializers.ValidationError('This username is not exists')
+        if user.first().role == Role.MANAGER or user.first().role == Role.ASSISTANT:
+            raise serializers.ValidationError(
+                {'Permission': "You don't have permission"}
+            )
+        return attrs
 
     def process(self, validated_data):
         username = validated_data['username']
