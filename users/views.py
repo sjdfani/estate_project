@@ -27,7 +27,6 @@ class Login(APIView):
                     user.save()
                     user_data = UserSerializer(user).data
                     message = {
-                        'role': user.role,
                         'user': user_data,
                         'tokens': get_tokens_for_user(user)
                     }
