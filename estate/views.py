@@ -5,7 +5,7 @@ from rest_framework import status
 from users.models import Role
 from users.permission import (
     Is_Any_Access_Except_Advisor, Is_Manager_OR_Assistant_OR_Advisor, Is_Manager_OR_Assistant_OR_Admin,
-    Is_Admin, Is_Manager_OR_Assistant
+    Is_Admin, Is_Manager_OR_Assistant, Is_Manager_OR_Assistant_OR_User
 )
 from .serializer import (
     HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
@@ -79,6 +79,8 @@ class Update_BS_Home(RetrieveUpdateDestroyAPIView):
 
 
 class Set_Description_BS_Home(APIView):
+    permission_classes = [Is_Manager_OR_Assistant_OR_User]
+
     def post(self, request):
         serializer = Set_Description_BS_Home_Serializer(
             data=request.data, context={'request': request}
