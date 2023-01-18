@@ -42,8 +42,6 @@ class Buy_Sell_Home(models.Model):
         max_length=20, verbose_name=_('Bathtub'), null=True, blank=True)
     window = models.CharField(
         max_length=20, verbose_name=_('Window'), null=True, blank=True)
-    electricity = models.CharField(
-        max_length=20, verbose_name=_('Electricity'), null=True, blank=True)
     description = models.TextField(
         verbose_name=_('Description'), null=True, blank=True)
     status = models.BooleanField(default=False, verbose_name=_('Status Home'))
