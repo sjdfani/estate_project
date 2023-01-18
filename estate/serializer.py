@@ -3,7 +3,7 @@ from django.utils import timezone
 from .models import Buy_Sell_Home
 
 
-class HomeList(serializers.ModelSerializer):
+class HomeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Buy_Sell_Home
         fields = '__all__'
