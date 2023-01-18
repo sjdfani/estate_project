@@ -59,18 +59,21 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate(self, attrs):
         user_password = attrs['user_password']
         username = attrs['username']
-        user = self.context['request'].user
-        if not user.check_password(user_password):
+        up_user = self.context['request'].user
+        if not up_user.check_password(user_password):
             raise serializers.ValidationError(
                 {'Password': 'Your password is incorrect'}
             )
-        user = User.objects.filter(username=username)
-        if not user.exists():
-            raise serializers.ValidationError('This username is not exists')
-        if user.first().role == Role.MANAGER or user.first().role == Role.ASSISTANT:
+        low_user = User.objects.filter(username=username)
+        if not low_user.exists():
             raise serializers.ValidationError(
-                {'Permission': "You don't have permission"}
+                {'username': 'This username is not exists'}
             )
+        if up_user.role == Role.ASSISTANT:
+            if low_user.first().role == Role.MANAGER or low_user.first().role == Role.ASSISTANT:
+                raise serializers.ValidationError(
+                    {'Permission': "You don't have permission"}
+                )
         return attrs
 
     def process(self, validated_data):

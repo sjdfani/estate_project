@@ -3,14 +3,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django.utils import timezone
-from django.db.models import Q
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
     ChangePasswordSerializer,
 )
 from .models import User, Role
 from .utils import get_tokens_for_user
-from .permission import Is_Manager, Is_Assistant
+from .permission import Is_Manager_OR_Assistant
 
 
 class Login(APIView):
@@ -23,10 +22,10 @@ class Login(APIView):
             password = serializer.validated_data['password']
             user = User.objects.filter(username=username).first()
             if user:
-                user_data = UserSerializer(user).data
                 if user.check_password(password):
                     user.last_login = timezone.now()
                     user.save()
+                    user_data = UserSerializer(user).data
                     message = {
                         'role': user.role,
                         'user': user_data,
@@ -42,35 +41,33 @@ class Login(APIView):
 
 
 class Register(CreateAPIView):
-    permission_classes = [Is_Manager, Is_Assistant]
+    permission_classes = [Is_Manager_OR_Assistant]
     serializer_class = RegisterSerializer
     queryset = User.objects.all()
 
 
 class UserList(ListAPIView):
-    permission_classes = [Is_Manager, Is_Assistant]
+    permission_classes = [Is_Manager_OR_Assistant]
     serializer_class = UserSerializer
 
     def get_queryset(self):
         if self.request.user.role == Role.ASSISTANT:
-            lookup = ~Q(role=Role.ASSISTANT, role=Role.MANAGER)
-            return User.objects.filter(lookup)
+            return User.objects.exclude(role=Role.MANAGER).exclude(role=Role.ASSISTANT)
         return User.objects.all()
 
 
 class UpdateInformation(RetrieveUpdateDestroyAPIView):
-    permission_classes = [Is_Manager, Is_Assistant]
+    permission_classes = [Is_Manager_OR_Assistant]
     serializer_class = UpdateInformationSerializer
 
     def get_queryset(self):
         if self.request.user.role == Role.ASSISTANT:
-            lookup = ~Q(role=Role.ASSISTANT, role=Role.MANAGER)
-            return User.objects.filter(lookup)
+            return User.objects.exclude(role=Role.MANAGER).exclude(role=Role.ASSISTANT)
         return User.objects.all()
 
 
 class ChangePassword(APIView):
-    permission_classes = [Is_Manager, Is_Assistant]
+    permission_classes = [Is_Manager_OR_Assistant]
 
     def post(self, request):
         serializer = ChangePasswordSerializer(

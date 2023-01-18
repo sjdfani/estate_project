@@ -16,6 +16,14 @@ class Is_Assistant(BasePermission):
         )
 
 
+class Is_Manager_OR_Assistant(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user and request.user.is_authenticated and (
+                request.user.role == Role.MANAGER or request.user.role == Role.ASSISTANT)
+        )
+
+
 class Is_Admin(BasePermission):
     def has_permission(self, request, view):
         return (
