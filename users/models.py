@@ -32,7 +32,7 @@ class User(AbstractBaseUser):
     )
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['username', 'fullname', 'role']
+    REQUIRED_FIELDS = ['fullname', 'role']
 
     objects = CustomUserManager()
 
