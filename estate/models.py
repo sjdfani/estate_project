@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class Buy_Sell_Home(models.Model):
     creator = models.ForeignKey(
-        User, on_delete=models.SET_NULL, verbose_name=_('Creator User'), null=True
+        User, on_delete=models.SET_NULL, verbose_name=_('Creator User'), null=True, related_name='buy_sell_home_creator'
     )
     area_code = models.CharField(max_length=10, verbose_name=_('Area Code'))
     owner_name = models.CharField(
@@ -51,6 +51,12 @@ class Buy_Sell_Home(models.Model):
         default=False, verbose_name=_('Is Archived'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    accepted_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, verbose_name=_('Accepted By'), null=True, blank=True, related_name='buy_sell_home_accepted_by'
+    )
+    accepted_date = models.DateTimeField(
+        verbose_name=_('Accepted Date'), null=True, blank=True
+    )
 
     def __str__(self) -> str:
         return self.creator.username
