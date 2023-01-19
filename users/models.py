@@ -56,6 +56,7 @@ class User_History(models.Model):
     low_user = models.ForeignKey(
         User, on_delete=models.SET_NULL, verbose_name=_('Low User'), null=True, related_name='user_history_low'
     )
+    title = models.CharField(max_length=50, null=True, blank=True)
     description = models.TextField(verbose_name=_('Description'))
     created_at = models.DateTimeField(
         auto_now=True, verbose_name=_('Date and Time')
