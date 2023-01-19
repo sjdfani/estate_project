@@ -104,8 +104,8 @@ class UserHistoryPerUser(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user.role == Role.MANAGER:
-            return User_History.objects.filter(up_user=user)
-        return User_History.objects.filter(low_user=user)
+            return User_History.objects.filter(up_user=user).order_by('-pk')
+        return User_History.objects.filter(low_user=user).order_by('-pk')
 
 
 class UserHistoryRetrieve(RetrieveAPIView):
