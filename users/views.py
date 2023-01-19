@@ -90,7 +90,6 @@ class ChangePassword(APIView):
 class UserHistoryList(ListAPIView):
     permission_classes = [Is_Manager]
     serializer_class = UserHistorySerializerFields
-    queryset = User_History.objects.all()
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
@@ -100,7 +99,7 @@ class UserHistoryList(ListAPIView):
 
 class UserHistoryPerUser(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserHistorySerializerFields
+    serializer_class = UserHistorySerializer
 
     def get_queryset(self):
         user = self.request.user
