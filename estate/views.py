@@ -198,5 +198,6 @@ class Import_Excel_Data(APIView):
                     area_code=area_code,
                     owner_phone=owner_phone,
                     creator=request.user,
+                    status=True
                 )
         return Response('add data complete', status=status.HTTP_200_OK)
