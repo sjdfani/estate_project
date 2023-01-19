@@ -37,17 +37,24 @@ class Change_Status_BS_Home_Serializer(serializers.Serializer):
         status = validated_data['status']
         user = self.context['request'].user
         home = Buy_Sell_Home.objects.get(pk=home_id)
+        state = None
         if status:
             home.status = True
             home.is_archived = False
+            state = 1
         else:
             home.status = False
             home.is_archived = True
+            state = 2
         home.checked_by = self.context['request'].user
         home.checked_date = timezone.now()
         home.save()
-        Home_History.objects.create(
-            user=user, home=home, title='change-status', descriptions='change status complete')
+        if state == 1:
+            Home_History.objects.create(
+                user=user, home=home, title='change-status', descriptions='accepted')
+        elif state == 2:
+            Home_History.objects.create(
+                user=user, home=home, title='change-status', descriptions='rejected')
 
     def save(self, **kwargs):
         self.process(self.validated_data)
@@ -201,17 +208,6 @@ class Home_History_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Home_History
         fields = '__all__'
-
-    def to_representation(self, instance):
-        request = self.context['request']
-        res = super().to_representation(instance)
-        res['home'] = HomeSerializer(
-            instance.home, context={'request': request}
-        ).data
-        res['user'] = UserSerializer(
-            instance.user, context={'request': request}
-        ).data
-        return res
 
 
 class Home_History_Serializer_Fields(serializers.ModelSerializer):

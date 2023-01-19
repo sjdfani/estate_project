@@ -126,7 +126,7 @@ class Home_History_List(ListAPIView):
 
 class Home_History_Per_User(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = Home_History_Serializer_Fields
+    serializer_class = Home_History_Serializer
 
     def get_queryset(self):
         user = self.request.user
