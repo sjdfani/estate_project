@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveAPIView
 from django.utils import timezone
+from django.db.models import Q
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
     ChangePasswordSerializer, UserHistorySerializer, UserHistorySerializerFields
@@ -53,7 +54,7 @@ class UserList(ListAPIView):
     def get_queryset(self):
         if self.request.user.role == Role.ASSISTANT:
             return User.objects.exclude(role=Role.MANAGER).exclude(role=Role.ASSISTANT)
-        return User.objects.all()
+        return User.objects.exclude(role=Role.MANAGER)
 
 
 class UpdateInformation(RetrieveUpdateDestroyAPIView):
@@ -90,6 +91,11 @@ class UserHistoryList(ListAPIView):
     permission_classes = [Is_Manager]
     serializer_class = UserHistorySerializerFields
     queryset = User_History.objects.all()
+
+    def get_queryset(self):
+        user_id = self.kwargs['pk']
+        user = User.objects.get(pk=user_id)
+        return User_History.objects.filter(low_user=user)
 
 
 class UserHistoryPerUser(ListAPIView):
