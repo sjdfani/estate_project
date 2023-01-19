@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveAPIView
 from django.utils import timezone
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
-    ChangePasswordSerializer, UserHistorySerializer
+    ChangePasswordSerializer, UserHistorySerializer, UserHistorySerializerFields
 )
 from .models import User, Role, User_History
 from .utils import get_tokens_for_user
@@ -81,16 +81,22 @@ class ChangePassword(APIView):
 
 class UserHistoryList(ListAPIView):
     permission_classes = [Is_Manager]
-    serializer_class = UserHistorySerializer
+    serializer_class = UserHistorySerializerFields
     queryset = User_History.objects.all()
 
 
 class UserHistoryPerUser(ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserHistorySerializer
+    serializer_class = UserHistorySerializerFields
 
     def get_queryset(self):
         user = self.request.user
         if user.role == Role.MANAGER:
             return User_History.objects.filter(up_user=user)
         return User_History.objects.filter(low_user=user)
+
+
+class UserHistoryRetrieve(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserHistorySerializer
+    queryset = User_History.objects.all()

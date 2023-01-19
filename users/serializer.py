@@ -152,3 +152,9 @@ class UserHistorySerializer(serializers.ModelSerializer):
             instance.low_user, context={'request': request}
         ).data
         return res
+
+
+class UserHistorySerializerFields(serializers.ModelSerializer):
+    class Meta:
+        model = User_History
+        fields = ('id', 'description')
