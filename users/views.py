@@ -60,6 +60,13 @@ class UpdateInformation(RetrieveUpdateDestroyAPIView):
     permission_classes = [Is_Manager_OR_Assistant]
     serializer_class = UpdateInformationSerializer
 
+    def delete(self, request, *args, **kwargs):
+        low_user_id = self.kwargs['pk']
+        user = User.objects.get(pk=low_user_id)
+        User_History.objects.create(
+            up_user=request.user, low_user=user, title='delete-user', description='delete user successful')
+        return super().delete(request, *args, **kwargs)
+
     def get_queryset(self):
         if self.request.user.role == Role.ASSISTANT:
             return User.objects.exclude(role=Role.MANAGER).exclude(role=Role.ASSISTANT)
