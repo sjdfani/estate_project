@@ -67,5 +67,6 @@ class Home_History(models.Model):
     home = models.ForeignKey(
         Buy_Sell_Home, on_delete=models.SET_NULL, verbose_name=_('Buy-Sell-Home'), null=True, related_name='home_history_home'
     )
+    title = models.CharField(max_length=50, null=True, blank=True)
     descriptions = models.TextField(verbose_name=_('Description'))
     created_at = models.DateTimeField(auto_now=True)
