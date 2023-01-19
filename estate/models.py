@@ -58,3 +58,14 @@ class Buy_Sell_Home(models.Model):
 
     def __str__(self) -> str:
         return self.creator.username
+
+
+class Home_History(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, verbose_name=_('User'), null=True, related_name='home_history_user'
+    )
+    home = models.ForeignKey(
+        Buy_Sell_Home, on_delete=models.SET_NULL, verbose_name=_('Buy-Sell-Home'), null=True, related_name='home_history_home'
+    )
+    descriptions = models.TextField(verbose_name=_('Description'))
+    created_at = models.DateTimeField(auto_now=True)
