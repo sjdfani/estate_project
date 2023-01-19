@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Buy_Sell_Home
+from .models import Buy_Sell_Home, Home_History
+from users.serializer import UserSerializer
 
 
 class HomeSerializer(serializers.ModelSerializer):
@@ -96,3 +97,26 @@ class Set_Description_BS_Home_Serializer(serializers.Serializer):
 
     def save(self, **kwargs):
         self.process(self.validated_data)
+
+
+class Home_History_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Home_History
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context['request']
+        res = super().to_representation(instance)
+        res['home'] = HomeSerializer(
+            instance.home, context={'request': request}
+        ).data
+        res['user'] = UserSerializer(
+            instance.user, context={'request': request}
+        ).data
+        return res
+
+
+class Home_History_Serializer_Fields(serializers.ModelSerializer):
+    class Meta:
+        model = Home_History
+        fields = ('id', 'title', 'description')

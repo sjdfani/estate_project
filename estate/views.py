@@ -2,6 +2,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDe
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from users.models import Role
 from users.permission import (
     Is_Any_Access_Except_Advisor, Is_Manager_OR_Assistant_OR_Advisor, Is_Manager_OR_Assistant_OR_Admin,
@@ -10,9 +11,9 @@ from users.permission import (
 from .serializer import (
     HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
     Update_BS_Home_Serializer, Set_Description_BS_Home_Serializer, Restore_Archived_BS_Home_Serializer,
-
+    Home_History_Serializer, Home_History_Serializer_Fields
 )
-from .models import Buy_Sell_Home
+from .models import Buy_Sell_Home, Home_History
 
 
 class BS_Home_List(ListAPIView):
@@ -101,3 +102,27 @@ class Set_Description_BS_Home(APIView):
             serializer.save()
             message = {'set-description': 'Set description complete'}
             return Response(message, status=status.HTTP_200_OK)
+
+
+class Home_History_List(ListAPIView):
+    permission_classes = [Is_Manager_OR_Assistant]
+    serializer_class = Home_History_Serializer_Fields
+
+    def get_queryset(self):
+        user = self.request.user
+        return Home_History.objects.exclude(user__role=Role.MANAGER).filter(user=user).order_by('-pk')
+
+
+class Home_History_Per_User(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = Home_History_Serializer_Fields
+
+    def get_queryset(self):
+        user = self.request.user
+        return Home_History.objects.filter(user=user).order_by('-pk')
+
+
+class Home_History_Retrieve(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = Home_History_Serializer
+    queryset = Home_History.objects.all()
