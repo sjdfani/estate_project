@@ -9,7 +9,8 @@ from users.permission import (
 )
 from .serializer import (
     HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
-    Update_BS_Home_Serializer, Set_Description_BS_Home_Serializer
+    Update_BS_Home_Serializer, Set_Description_BS_Home_Serializer, Restore_Archived_BS_Home_Serializer,
+
 )
 from .models import Buy_Sell_Home
 
@@ -46,6 +47,17 @@ class Change_Status_BS_Home(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             message = {'change-status': 'Change status complete'}
+            return Response(message, status=status.HTTP_200_OK)
+
+
+class Restore_Archived_BS_Home(APIView):
+    def post(self, request):
+        serializer = Restore_Archived_BS_Home_Serializer(
+            data=request.data, context={'request': request}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            message = {'restore-home': 'Restore is successful'}
             return Response(message, status=status.HTTP_200_OK)
 
 

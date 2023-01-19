@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     BS_Home_List, Create_BS_Home, Change_Status_BS_Home, UnChecked_BS_Home_List,
-    Archived_BS_Home, Update_BS_Home, Set_Description_BS_Home
+    Archived_BS_Home, Update_BS_Home, Set_Description_BS_Home, Restore_Archived_BS_Home,
+
 )
 
 app_name = 'estate'
@@ -15,4 +16,6 @@ urlpatterns = [
     path('archived-home/', Archived_BS_Home.as_view(), name='archived-home'),
     path('set-description/', Set_Description_BS_Home.as_view(),
          name='set-description'),
+    path('restore-archived-home/', Restore_Archived_BS_Home.as_view(),
+         name='restore-archived-home')
 ]

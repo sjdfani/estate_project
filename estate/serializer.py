@@ -51,6 +51,25 @@ class Change_Status_BS_Home_Serializer(serializers.Serializer):
         self.process(self.validated_data)
 
 
+class Restore_Archived_BS_Home_Serializer(serializers.Serializer):
+    home = serializers.IntegerField()
+
+    def validate_home(self, value):
+        if not Buy_Sell_Home.objects.filter(pk=value).exists():
+            raise serializers.ValidationError('This home is not exists')
+        return value
+
+    def process(self, validated_data):
+        home_id = validated_data['home']
+        home = Buy_Sell_Home.objects.get(pk=home_id)
+        home.status = False
+        home.is_archived = False
+        home.save()
+
+    def save(self, **kwargs):
+        self.process(self.validated_data)
+
+
 class Update_BS_Home_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Buy_Sell_Home
