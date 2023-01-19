@@ -47,3 +47,16 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.username
+
+
+class User_History(models.Model):
+    up_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, verbose_name=_('Up User'), null=True, related_name='user_history_up'
+    )
+    low_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, verbose_name=_('Low User'), null=True, related_name='user_history_low'
+    )
+    description = models.TextField(verbose_name=_('Description'))
+    created_at = models.DateTimeField(
+        auto_now=True, verbose_name=_('Date and Time')
+    )
