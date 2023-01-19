@@ -2,12 +2,13 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
-    ChangePasswordSerializer,
+    ChangePasswordSerializer, UserHistorySerializer
 )
-from .models import User, Role
+from .models import User, Role, User_History
 from .utils import get_tokens_for_user
 from .permission import Is_Manager_OR_Assistant
 
@@ -76,3 +77,9 @@ class ChangePassword(APIView):
             serializer.save()
             message = {'change-password': 'change password complete'}
             return Response(message, status=status.HTTP_200_OK)
+
+
+class UserHistoryList(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserHistorySerializer
+    queryset = User_History.objects.all()

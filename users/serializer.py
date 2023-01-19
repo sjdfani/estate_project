@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Role
+from .models import User, Role, User_History
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -53,18 +53,18 @@ class UpdateInformationSerializer(serializers.ModelSerializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     user_password = serializers.CharField(max_length=50)
-    username = serializers.CharField(max_length=20)
+    user_id = serializers.IntegerField()
     new_password = serializers.CharField(max_length=50)
 
     def validate(self, attrs):
         user_password = attrs['user_password']
-        username = attrs['username']
+        user_id = attrs['user_id']
         up_user = self.context['request'].user
         if not up_user.check_password(user_password):
             raise serializers.ValidationError(
                 {'Password': 'Your password is incorrect'}
             )
-        low_user = User.objects.filter(username=username)
+        low_user = User.objects.filter(pk=user_id)
         if not low_user.exists():
             raise serializers.ValidationError(
                 {'username': 'This username is not exists'}
@@ -77,11 +77,28 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
     def process(self, validated_data):
-        username = validated_data['username']
+        user_id = validated_data['user_id']
         new_password = validated_data['new_password']
-        user = User.objects.get(username=username)
+        user = User.objects.get(pk=user_id)
         user.set_password(new_password)
         user.save()
 
     def save(self, **kwargs):
         self.process(self.validated_data)
+
+
+class UserHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_History
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context['request']
+        res = super().to_representation(instance)
+        res['up_user'] = UserSerializer(
+            instance.up_user, context={'request': request}
+        ).data
+        res['low_user'] = UserSerializer(
+            instance.low_user, context={'request': request}
+        ).data
+        return res
