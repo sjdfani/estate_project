@@ -217,4 +217,4 @@ class Home_History_Serializer(serializers.ModelSerializer):
 class Home_History_Serializer_Fields(serializers.ModelSerializer):
     class Meta:
         model = Home_History
-        fields = ('id', 'title', 'description')
+        fields = ('id', 'title', 'descriptions')
