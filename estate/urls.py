@@ -22,6 +22,6 @@ urlpatterns = [
          name='list-home-history'),
     path('home-history/', Home_History_Per_User.as_view(),
          name='home-history-per-user'),
-    path('home-history/<pk:int>', Home_History_Retrieve.as_view(),
+    path('home-history/<int:pk>', Home_History_Retrieve.as_view(),
          name='home-history-retrieve'),
 ]
