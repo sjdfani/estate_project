@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django.utils import timezone
 from .serializer import (
@@ -9,7 +10,7 @@ from .serializer import (
 )
 from .models import User, Role, User_History
 from .utils import get_tokens_for_user
-from .permission import Is_Manager_OR_Assistant
+from .permission import Is_Manager_OR_Assistant, Is_Manager
 
 
 class Login(APIView):
@@ -79,19 +80,17 @@ class ChangePassword(APIView):
 
 
 class UserHistoryList(ListAPIView):
-    permission_classes = [Is_Manager_OR_Assistant]
+    permission_classes = [Is_Manager]
     serializer_class = UserHistorySerializer
-
-    def get_queryset(self):
-        if self.request.user.role == Role.ASSISTANT:
-            return User_History.objects.exclude(up_user__role=Role.MANAGER)
-        return User_History.objects.all()
+    queryset = User_History.objects.all()
 
 
 class UserHistoryPerUser(ListAPIView):
-    permission_classes = [Is_Manager_OR_Assistant]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserHistorySerializer
 
     def get_queryset(self):
         user = self.request.user
-        return User_History.objects.filter(up_user=user)
+        if user.role == Role.MANAGER:
+            return User_History.objects.filter(up_user=user)
+        return User_History.objects.filter(low_user=user)
