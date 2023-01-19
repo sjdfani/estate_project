@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.utils import timezone
 from .models import Buy_Sell_Home, Home_History
-from users.serializer import UserSerializer
 
 
 class HomeSerializer(serializers.ModelSerializer):
