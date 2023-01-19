@@ -58,7 +58,7 @@ class UserList(ListAPIView):
 
 
 class UpdateInformation(RetrieveUpdateDestroyAPIView):
-    permission_classes = [Is_Manager_OR_Assistant]
+    permission_classes = [IsAuthenticated]
     serializer_class = UpdateInformationSerializer
 
     def delete(self, request, *args, **kwargs):
