@@ -85,6 +85,13 @@ class Update_BS_Home(RetrieveUpdateDestroyAPIView):
     permission_classes = [Is_Manager_OR_Assistant]
     queryset = Buy_Sell_Home.objects.all()
 
+    def delete(self, request, *args, **kwargs):
+        home_id = self.kwargs['pk']
+        home = Buy_Sell_Home.objects.get(pk=home_id)
+        Home_History.objects.create(
+            user=request.user, home=home, title='delete-home', descriptions='delete home successful')
+        return super().delete(request, *args, **kwargs)
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return HomeSerializer
