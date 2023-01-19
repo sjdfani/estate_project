@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Role, User_History
+from .utils import return_persian_sentence
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,10 +39,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        up_user = self.context['request'].user
         password = validated_data.pop('password')
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
+        description = return_persian_sentence('create-user', up_user, user)
+        User_History.objects.create(
+            up_user=up_user, low_user=user, description=description)
         return user
 
 
@@ -49,6 +54,47 @@ class UpdateInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('password',)
+
+    def process(self, instance, validated_data):
+        text = ''
+        status = False
+        for key, value in validated_data.items():
+            if key == 'username':
+                if instance.username != value:
+                    status = True
+                    text += f'{value} <- {instance.username} :شناسه\n'
+            elif key == 'fullname':
+                if instance.fullname != value:
+                    status = True
+                    text += f'{value} <- {instance.fullname} :نام کامل\n'
+            elif key == 'phone':
+                if instance.phone != value:
+                    status = True
+                    text += f'{value} <- {instance.phone} :تلفن\n'
+            elif key == 'address':
+                if instance.address != value:
+                    status = True
+                    text += f'{value} <- {instance.address} :آدرس\n'
+            elif key == 'role':
+                if instance.role != value:
+                    status = True
+                    text += f'{value} <- {instance.role} :نقش\n'
+            elif key == 'access_codes':
+                if instance.access_codes != value:
+                    status = True
+                    text += f'{value} <- {instance.access_codes} :سطح دسترسی\n'
+        return text, status
+
+    def update(self, instance, validated_data):
+        up_user = self.context['request'].user
+        user = User.objects.get(pk=instance.id)
+        text, status = self.process(instance, validated_data)
+        if status:
+            description = return_persian_sentence('update-user', up_user, user)
+            description += '\n'+text
+            User_History.objects.create(
+                up_user=up_user, low_user=user, description=description)
+        return super().update(instance, validated_data)
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -77,11 +123,15 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
     def process(self, validated_data):
+        up_user = self.context['request'].user
         user_id = validated_data['user_id']
         new_password = validated_data['new_password']
         user = User.objects.get(pk=user_id)
         user.set_password(new_password)
         user.save()
+        description = return_persian_sentence('change-password', up_user, user)
+        User_History.objects.create(
+            up_user=user, low_user=user, description=description)
 
     def save(self, **kwargs):
         self.process(self.validated_data)
