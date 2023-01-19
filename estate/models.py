@@ -8,6 +8,8 @@ class Buy_Sell_Home(models.Model):
         User, on_delete=models.SET_NULL, verbose_name=_('Creator User'), null=True, related_name='buy_sell_home_creator'
     )
     area_code = models.CharField(max_length=10, verbose_name=_('Area Code'))
+    date = models.CharField(max_length=20, verbose_name=_(
+        'Date'), null=True, blank=True)
     owner_name = models.CharField(
         max_length=20, verbose_name=_('Owner Name'), null=True, blank=True)
     owner_phone = models.CharField(
