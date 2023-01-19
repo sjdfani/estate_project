@@ -2,11 +2,12 @@ from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDe
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from users.models import Role
 from users.permission import (
     Is_Any_Access_Except_Advisor, Is_Manager_OR_Assistant_OR_Advisor, Is_Manager_OR_Assistant_OR_Admin,
-    Is_Admin, Is_Manager_OR_Assistant, Is_Manager_OR_Assistant_OR_User
+    Is_Admin, Is_Manager_OR_Assistant, Is_Manager_OR_Assistant_OR_User, Is_Manager
 )
 from .serializer import (
     HomeSerializer, Create_BS_Home_Serializer, Change_Status_BS_Home_Serializer,
@@ -14,11 +15,14 @@ from .serializer import (
     Home_History_Serializer, Home_History_Serializer_Fields
 )
 from .models import Buy_Sell_Home, Home_History
+import pandas
 
 
 class BS_Home_List(ListAPIView):
     permission_classes = [Is_Any_Access_Except_Advisor]
     serializer_class = HomeSerializer
+    filterset_fields = ['area_code', 'style', 'heating', 'bottom',
+                        'electricity', 'kitchen', 'faucets', 'window', 'bathtub']
 
     def get_queryset(self):
         if self.request.user.role in [Role.MANAGER, Role.ASSISTANT]:
@@ -133,3 +137,66 @@ class Home_History_Retrieve(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = Home_History_Serializer
     queryset = Home_History.objects.all()
+
+
+class Import_Excel_Data(APIView):
+    parser_classes = (MultiPartParser,)
+    permission_classes = [Is_Manager]
+
+    def post(self, request):
+        file_obj = request.FILES['file']
+        data = pandas.read_excel(file_obj).fillna('')
+        data = data.values.tolist()
+        total_price = 0
+        price_per_meter = 0
+        meterage = 0
+        for row in data[1:]:
+            if row.count('') < 18:
+                description = str(row[0])
+                window = str(row[1])
+                bathtub = str(row[2])
+                faucets = str(row[3])
+                kitchen = str(row[4])
+                electricity = str(row[5])
+                bottom = str(row[6])
+                heating = str(row[7])
+                style = str(row[8])
+                customer_name = str(row[9])
+                if row[10]:
+                    total_price = row[10]
+                if row[11]:
+                    price_per_meter = row[11]
+                if row[12]:
+                    meterage = row[12]
+                floors = str(row[13])
+                plaque = str(row[14])
+                street = str(row[15])
+                owner_name = str(row[16])
+                date = str(row[17])
+                area_code = str(row[18])
+                owner_phone = str(row[19])
+
+                home = Buy_Sell_Home.objects.create(
+                    description=description,
+                    window=window,
+                    bathtub=bathtub,
+                    faucets=faucets,
+                    kitchen=kitchen,
+                    electricity=electricity,
+                    bottom=bottom,
+                    heating=heating,
+                    style=style,
+                    customer_name=customer_name,
+                    total_price=total_price,
+                    price_per_meter=price_per_meter,
+                    meterage=meterage,
+                    floors=floors,
+                    plaque=plaque,
+                    street=street,
+                    owner_name=owner_name,
+                    date=date,
+                    area_code=area_code,
+                    owner_phone=owner_phone,
+                    creator=request.user,
+                )
+        return Response('add data complete', status=status.HTTP_200_OK)

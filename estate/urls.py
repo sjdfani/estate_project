@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     BS_Home_List, Create_BS_Home, Change_Status_BS_Home, UnChecked_BS_Home_List,
     Archived_BS_Home, Update_BS_Home, Set_Description_BS_Home, Restore_Archived_BS_Home,
-    Home_History_List, Home_History_Per_User, Home_History_Retrieve
+    Home_History_List, Home_History_Per_User, Home_History_Retrieve, Import_Excel_Data
 )
 
 app_name = 'estate'
@@ -24,4 +24,5 @@ urlpatterns = [
          name='home-history-per-user'),
     path('home-history/<int:pk>', Home_History_Retrieve.as_view(),
          name='home-history-retrieve'),
+    path('import-excel/', Import_Excel_Data.as_view(), name='import-excel'),
 ]
