@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveAPIView
 from django.utils import timezone
-from django.db.models import Q
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
     ChangePasswordSerializer, UserHistorySerializer
@@ -72,6 +71,15 @@ class UpdateInformation(RetrieveUpdateDestroyAPIView):
         if self.request.user.role == Role.ASSISTANT:
             return User.objects.exclude(role=Role.MANAGER).exclude(role=Role.ASSISTANT)
         return User.objects.all()
+
+
+class Get_User_Data(RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs['pk']
+        return User.objects.filter(pk=user_id)
 
 
 class ChangePassword(APIView):
