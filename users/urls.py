@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     Login, Register, UserList, UpdateInformation, ChangePassword, UserHistoryList,
-    UserHistoryPerUser, UserHistoryRetrieve
+    UserHistoryPerUser
 )
 
 app_name = 'users'
@@ -15,6 +15,4 @@ urlpatterns = [
     path('user-history-list/<int:pk>/',
          UserHistoryList.as_view(), name='list-user-history'),
     path('user-history/', UserHistoryPerUser.as_view(), name='user-history'),
-    path('user-history/<int:pk>/', UserHistoryRetrieve.as_view(),
-         name='user-history-retrieve')
 ]

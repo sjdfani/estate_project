@@ -7,11 +7,11 @@ from django.utils import timezone
 from django.db.models import Q
 from .serializer import (
     LoginSerializer, UserSerializer, RegisterSerializer, UpdateInformationSerializer,
-    ChangePasswordSerializer, UserHistorySerializer, UserHistorySerializerFields
+    ChangePasswordSerializer, UserHistorySerializer
 )
 from .models import User, Role, User_History
 from .utils import get_tokens_for_user
-from .permission import Is_Manager_OR_Assistant, Is_Manager
+from .permission import Is_Manager_OR_Assistant
 
 
 class Login(APIView):
@@ -88,8 +88,8 @@ class ChangePassword(APIView):
 
 
 class UserHistoryList(ListAPIView):
-    permission_classes = [Is_Manager]
-    serializer_class = UserHistorySerializerFields
+    permission_classes = [Is_Manager_OR_Assistant]
+    serializer_class = UserHistorySerializer
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
@@ -106,9 +106,3 @@ class UserHistoryPerUser(ListAPIView):
         if user.role == Role.MANAGER:
             return User_History.objects.filter(up_user=user).order_by('-pk')
         return User_History.objects.filter(low_user=user).order_by('-pk')
-
-
-class UserHistoryRetrieve(RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserHistorySerializer
-    queryset = User_History.objects.all()
