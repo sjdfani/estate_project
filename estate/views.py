@@ -33,7 +33,7 @@ class BS_Home_List(ListAPIView):
                 access_code = access_code.split('-')
                 return Buy_Sell_Home.objects.filter(area_code__in=access_code, status=True)
             else:
-                return []
+                return Buy_Sell_Home.objects.none()
 
 
 class Create_BS_Home(CreateAPIView):
